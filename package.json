@@ -1,4 +1,8 @@
 {
   "name": "full-stack-open-part8",
-  "author": "Helen Kwok"
+  "author": "Helen Kwok",
+  "dependencies": {
+    "@apollo/client": "^3.6.9",
+    "graphql": "^16.6.0"
+  }
 }
