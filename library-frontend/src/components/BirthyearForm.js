@@ -15,6 +15,10 @@ const BirthyearForm = (props) => {
     }
   })
 
+  const handleChange = (event) => {
+    setName(event.target.value)
+  }
+
   const submit = async (event) => {
     event.preventDefault()
 
@@ -36,10 +40,14 @@ const BirthyearForm = (props) => {
       <form onSubmit={submit}>
         <div>
           name
-          <input
-            value={name}
-            onChange={({ target }) => setName(target.value)}
-          />
+          <select value={name} onChange={handleChange}>
+            {props.authors.map((a) => (
+              <option key={a.name} value={a.name}>
+                  {a.name}
+                </option>
+              )
+            )}
+          </select>
         </div>
         <div>
           born
