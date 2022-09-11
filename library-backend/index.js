@@ -170,16 +170,16 @@ const resolvers = {
     authorCount: async () => Author.collection.countDocuments(),
     allBooks: async (root, args) => {
       if (!args.author && !args.genre) {
-        return Book.find({})
+        return Book.find({}).populate("author")
       }
 
       if (!args.author) {
         return Book.find({
-          genres: { $in: [args.genre] }
-        })
+          genres: { $in: args.genre }
+        }).populate("author")
       }
 
-      let author = ""
+      let author
       if (args.author) {
         author = await Author.findOne({
           name: args.author
@@ -188,19 +188,19 @@ const resolvers = {
 
       if (!args.genre) {
         return Book.find({
-          author: author.id
-        })
+          author: { $in: author.id }
+        }).populate("author")
       }
 
       return Book.find({
-        $and:[
-          {author: author.id},
-          {genres: { $in: [args.genre] }}
+        $and: [
+          {author: { $in: author.id }},
+          {genres: { $in: args.genre }}
         ]
-      })
+      }).populate("author")
     },
-    allAuthors: async () => await Author.find({}),
-    me: async (root, args, context) => await context.currentUser
+    allAuthors: async () => Author.find({}),
+    me: async (root, args, context) => context.currentUser
   },
   Mutation: {
     addBook: async (root, args, context) => {
@@ -295,14 +295,9 @@ const resolvers = {
       return { value: jwt.sign(userForToken, JWT_SECRET) }
     }
   },
-  Book: {
-    author: async (root) => await Author.findOne({
-      id: root.author
-    })
-  },
   Author: {
-    bookCount: async (root) => await Book.find({
-      author: root.id
+    bookCount: async (root) => Book.find({
+      author: root._id
     }).countDocuments()
   }
 }
