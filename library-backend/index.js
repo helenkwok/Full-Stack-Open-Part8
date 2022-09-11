@@ -1,4 +1,4 @@
-const { ApolloServer, gql } = require('apollo-server')
+const { ApolloServer, gql, UserInputError } = require('apollo-server')
 const mongoose = require('mongoose')
 require('dotenv').config()
 const Book = require('./models/book')
@@ -148,7 +148,6 @@ const resolvers = {
     bookCount: async () => Book.collection.countDocuments(),
     authorCount: async () => Author.collection.countDocuments(),
     allBooks: async (root, args) => {
-      console.log(args)
       if (!args.author && !args.genre) {
         return Book.find({})
       }
@@ -190,7 +189,13 @@ const resolvers = {
           name: args.author,
           born: null
         })
-        author = await newAuthor.save()
+        try {
+          author = await newAuthor.save()
+        } catch (error) {
+          throw new UserInputError(error.message, {
+            invalidArgs: args
+          })
+        }
       }
 
       const book = new Book({
@@ -199,7 +204,16 @@ const resolvers = {
         author,
         genres: args.genres
       })
-      return book.save()
+
+      try {
+        book.save()
+      } catch (error) {
+        throw new UserInputError(error.message, {
+          invalidArgs: args
+        })
+      }
+
+      return book
     },
     editAuthor: async (root, args) => {
       const author = await Author.findOne({  name: args.name })
@@ -208,7 +222,16 @@ const resolvers = {
       }
 
       author.born = args.setBornTo
-      return author.save()
+
+      try {
+        author.save()
+      } catch (error) {
+        throw new UserInputError(error.message, {
+          invalidArgs: args
+        })
+      }
+
+      return author
     }
   },
   Book: {
