@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useQuery } from '@apollo/client'
 import { ALL_BOOKS } from '../queries'
+import { shouldCanonizeResults } from '@apollo/client/cache/inmemory/helpers'
 
 const Books = (props) => {
   const [books, setBooks] = useState([])
@@ -27,15 +28,17 @@ const Books = (props) => {
         categories.filter((item, index) => categories.indexOf(item) === index)
       )
     }
-  }, [books])
+  }, [books, result.loading])
 
   useEffect(() => {
-    if (genre === '') {
-      setBooklist(books)
-      return
+    if(!result.loading) {
+      if (genre === '') {
+        setBooklist(books)
+        return
+      }
+      setBooklist(books.filter((b) => b.genres.includes(genre)))
     }
-    setBooklist(books.filter((b) => b.genres.includes(genre)))
-  },[genre])
+  },[books, genre, result.loading])
 
   const handleGenre = (g) => {
     setGenre(g)
