@@ -8,6 +8,21 @@ import Login from './components/Login'
 import Recommendations from './components/Recommendations'
 import { ALL_BOOKS, BOOK_ADDED } from './queries'
 
+export const updateCache = (cache, query, addedBook) => {
+  const uniqByName = (a) => {
+    let seen = new Set()
+    return a.filter((item) => {
+      let k = item.name
+      return seen.has(k) ? false : seen.add(k)
+    })
+  }
+  cache.updateQuery(query, ({ allBooks }) => {
+    return {
+      allBooks: uniqByName(allBooks.concat(addedBook)),
+    }
+  })
+}
+
 const App = () => {
   const [errorMessage, setErrorMessage] = useState(null)
   const [page, setPage] = useState('authors')
@@ -17,14 +32,10 @@ const App = () => {
 
   useSubscription(BOOK_ADDED, {
     onSubscriptionData: ({ subscriptionData }) => {
-      alert(`${subscriptionData.data.bookAdded.title} added`)
       const addedBook = subscriptionData.data.bookAdded
+      alert(`${addedBook.title} added`)
 
-      client.cache.updateQuery({ query: ALL_BOOKS }, ({ allBooks }) => {
-        return {
-          allBooks: allBooks.concat(addedBook),
-        }
-      })
+      updateCache(client.cache, { query: ALL_BOOKS }, addedBook)
     }
   })
 
