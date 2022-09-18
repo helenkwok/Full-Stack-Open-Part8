@@ -14,6 +14,7 @@ const NewBook = (props) => {
       { query: ALL_AUTHORS },
       { query: ALL_GENRES},
     ],
+    /*
     update: (cache, response) => {
       cache.updateQuery({ query: ALL_BOOKS }, ({ allBooks }) => {
         return {
@@ -21,6 +22,7 @@ const NewBook = (props) => {
         }
       })
     },
+    */
     onError: (error) => {
       props.setError(error.graphQLErrors[0].message)
     }
