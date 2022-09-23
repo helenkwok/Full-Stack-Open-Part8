@@ -67,7 +67,8 @@ const resolvers = {
       if (!author) {
         const newAuthor = new Author({
           name: args.author,
-          born: null
+          born: null,
+          books: []
         })
         try {
           author = await newAuthor.save()
@@ -84,6 +85,9 @@ const resolvers = {
         author,
         genres: args.genres
       })
+
+      author.books = author.books.concat(book)
+      await author.save()
 
       try {
         book.save()
@@ -154,9 +158,7 @@ const resolvers = {
     },
   },
   Author: {
-    bookCount: async (root) => Book.find({
-      author: root._id
-    }).countDocuments()
+    bookCount: async (root) => root.books.length
   }
 }
 
