@@ -43,6 +43,7 @@ const resolvers = {
         ]
       }).populate("author")
     },
+    // return genres for filtering
     allGenres: async () => {
       let categories = []
       const books = await Book.find({})
